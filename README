@@ -21,3 +21,10 @@ MemoryMonitor is a static class, which must be created via create method. The pa
 
 At the simplest scenario one can initiate the component doing the following call:
 MemoryMonitor.create(stage);
+
+###########
+# FOLDERS #
+###########
+
+src/ -> component source code, including test application.
+bin/ -> pre-compiled binaries, including test application and SWC component.
