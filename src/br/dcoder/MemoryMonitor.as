@@ -31,18 +31,16 @@ package br.dcoder
 		private static var textField:TextField;
 
 		private static var _align:String;
-		private static var _alpha:Number;
 		private static var offsetX:uint, offsetY:uint;
 		private static var data:Array;
 		
 		private static var minMemory:uint, maxMemory:uint, currentMemory:uint;
-		private static var lastFpsUpdate:uint, fpsCount:uint, lastFps:uint;
+		private static var frameCount:uint, lastFpsCheck:uint;
 		
-		public static function create(stage:Stage, _align:String = TOP_LEFT, _alpha:Number = 0.85):void
+		public static function create(stage:Stage, _align:String = TOP_LEFT, alpha:Number = 0.85):void
 		{
 			MemoryMonitor.stage = stage;
 			MemoryMonitor._align = _align;
-			MemoryMonitor._alpha = _alpha;
 			
 			offsetX = Math.round(WIDTH / 20);
 			offsetY = Math.round(HEIGHT / 20);
@@ -51,22 +49,19 @@ package br.dcoder
 			stage.addEventListener(Event.RESIZE, resize);
 			
 			container = new Sprite();
-			container.alpha = _alpha;
+			container.alpha = alpha;
 			stage.addChild(container);
 			
 			minLayer = new Shape();
-			minLayer.x = offsetX;
 			minLayer.y = offsetY;
 			container.addChild(minLayer);
 			
 			maxLayer = new Shape();
-			maxLayer.x = offsetX;
 			maxLayer.y = offsetY;
 			container.addChild(maxLayer);
 			
 			curLayer = new Shape();
 			curLayer.alpha = 0.75;
-			curLayer.x = offsetX;
 			curLayer.y = offsetY;
 			container.addChild(curLayer);
 			
@@ -88,8 +83,8 @@ package br.dcoder
 			maxMemory = uint.MIN_VALUE;
 			currentMemory = 0;
 			
-			fpsCount = lastFps = 0;
-			lastFpsUpdate = getTimer();
+			frameCount = 0;
+			lastFpsCheck = getTimer();
 			
 			drawContainer();
 			resize(null);
@@ -101,23 +96,10 @@ package br.dcoder
 		{
 			return _align;
 		}
-
-		public function get alpha():Number
-		{
-			return _alpha;
-		}
 		
 		private static function enterFrame(event:Event):void
 		{
-			var now:uint = getTimer();
-			
-			if (now - lastFpsUpdate >= 1000) {
-				lastFps = fpsCount;
-				fpsCount = 0;
-				lastFpsUpdate = now;
-			} else {
-				fpsCount++;
-			}
+			frameCount++;
 		}
 		
 		private static function resize(event:Event):void
@@ -129,18 +111,18 @@ package br.dcoder
 			}
 			else if (_align == TOP_RIGHT)
 			{
-				container.x = stage.stageWidth - WIDTH - 1;
+				container.x = stage.stageWidth - WIDTH;
 				container.y = 0;
 			}
 			else if (_align == BOTTOM_LEFT)
 			{
 				container.x = 0;
-				container.y = stage.stageHeight - HEIGHT - 1;
+				container.y = stage.stageHeight - HEIGHT;
 			}
 			else if (_align == BOTTOM_RIGHT)
 			{
-				container.x = stage.stageWidth - WIDTH - 1;
-				container.y = stage.stageHeight - HEIGHT - 1;
+				container.x = stage.stageWidth - WIDTH;
+				container.y = stage.stageHeight - HEIGHT;
 			}
 		}
 		
@@ -148,33 +130,36 @@ package br.dcoder
 		{
 			container.graphics.clear();
 			container.graphics.beginFill(0xffffff);
-			container.graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			container.graphics.lineStyle(1, 0x000000);
+			container.graphics.drawRect(0, 0, WIDTH - 1, HEIGHT - 1);
 			container.graphics.endFill();
 			
 			container.graphics.lineStyle(1, 0xcccccc);
 			
-			var h:Number = (HEIGHT - textField.textHeight - offsetY * 2) / 5;
-			var w:Number = WIDTH - offsetX * 2;
+			var h:Number = (HEIGHT - 2 - textField.textHeight - offsetY * 2) / 5;
+			var w:Number = WIDTH - 2;
 			
 			for (var i:uint = 0; i <= 5; i++)
 			{
-				container.graphics.moveTo(offsetX, offsetY + i * h);
-				container.graphics.lineTo(offsetX + w, offsetY + i * h);
+				container.graphics.moveTo(1, offsetY + i * h);
+				container.graphics.lineTo(w, offsetY + i * h);
 			}
-			
-			container.graphics.lineStyle(1, 0x000000);
-			container.graphics.drawRect(0, 0, WIDTH, HEIGHT);
 		}
 		
 		private static function updateText(minMem:Number, maxMem:Number, curMem:Number):void
 		{
-			textField.htmlText = "<font face='_typewriter' color='#0000ff' size='10'>" + minMem + "mb</font> <font face='_typewriter' color='#ff0000' size='10'>" + maxMem + "mb</font> <font face='_typewriter' color='#00bb00' size='10'>" + curMem + "mb</font> <font face='_typewriter' color='#000000' size='10'>" + lastFps + "fps</font>";
+			var now:uint = getTimer();
+			var fps:uint = Math.round(frameCount / ((now - lastFpsCheck) / 1000));
+			lastFpsCheck = now;
+			frameCount = 0;
+			
+			textField.htmlText = "<font face='_typewriter' color='#0000ff' size='10'>" + minMem + "mb</font> <font face='_typewriter' color='#ff0000' size='10'>" + maxMem + "mb</font> <font face='_typewriter' color='#00bb00' size='10'>" + curMem + "mb</font> <font face='_typewriter' color='#000000' size='10'>" + fps + "fps</font>";
 		}
 		
 		private static function drawData():void
 		{
-			var w:uint = WIDTH - offsetX * 2;
-			var h:uint = HEIGHT - offsetY * 2 - textField.textHeight;
+			var w:uint = WIDTH - 2;
+			var h:uint = HEIGHT - 2 - offsetY * 2 - textField.textHeight;
 			
 			minLayer.graphics.clear();
 			minLayer.graphics.lineStyle(1, 0x0000ff);
