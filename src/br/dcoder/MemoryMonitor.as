@@ -30,17 +30,17 @@ package br.dcoder
 		private static var curLayer:Shape;
 		private static var textField:TextField;
 
-		private static var _align:String;
+		private static var align:String;
 		private static var offsetX:uint, offsetY:uint;
 		private static var data:Array;
 		
 		private static var minMemory:uint, maxMemory:uint, currentMemory:uint;
 		private static var frameCount:uint, lastFpsCheck:uint;
 		
-		public static function create(stage:Stage, _align:String = TOP_LEFT, alpha:Number = 0.85):void
+		public static function create(stage:Stage, align:String = TOP_LEFT, alpha:Number = 0.85):void
 		{
 			MemoryMonitor.stage = stage;
-			MemoryMonitor._align = _align;
+			MemoryMonitor.align = align;
 			
 			offsetX = Math.round(WIDTH / 20);
 			offsetY = Math.round(HEIGHT / 20);
@@ -92,9 +92,9 @@ package br.dcoder
 			setInterval(update, INTERVAL);
 		}
 		
-		public function get align():String
+		public function getAlign():String
 		{
-			return _align;
+			return align;
 		}
 		
 		private static function enterFrame(event:Event):void
@@ -104,22 +104,22 @@ package br.dcoder
 		
 		private static function resize(event:Event):void
 		{
-			if (_align == TOP_LEFT)
+			if (align == TOP_LEFT)
 			{
 				container.x = 0;
 				container.y = 0;
 			}
-			else if (_align == TOP_RIGHT)
+			else if (align == TOP_RIGHT)
 			{
 				container.x = stage.stageWidth - WIDTH;
 				container.y = 0;
 			}
-			else if (_align == BOTTOM_LEFT)
+			else if (align == BOTTOM_LEFT)
 			{
 				container.x = 0;
 				container.y = stage.stageHeight - HEIGHT;
 			}
-			else if (_align == BOTTOM_RIGHT)
+			else if (align == BOTTOM_RIGHT)
 			{
 				container.x = stage.stageWidth - WIDTH;
 				container.y = stage.stageHeight - HEIGHT;
