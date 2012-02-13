@@ -7,7 +7,12 @@ package br.dcoder
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.TextEvent;
 	import flash.geom.Point;
+	import flash.system.System;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+	import flash.text.TextFormatAlign;
 	import flash.utils.getTimer;
 	import flash.utils.setTimeout;
 
@@ -22,6 +27,9 @@ package br.dcoder
 		private var center:Point;
 		private var particles:Array;
 		private var lastUpdate:uint;
+		private var started:Boolean;
+		
+		private var label:TextField;
 		
 		public function MemoryMonitorTest()
 		{
@@ -37,7 +45,24 @@ package br.dcoder
 			removeEventListener(Event.ADDED_TO_STAGE, addedToStage);
 			MemoryMonitor.create(stage);
 			
-			setTimeout(start, 1000);
+			started = false;
+			
+			label = new TextField();
+			label.addEventListener(TextEvent.LINK, linkClick);
+			addChild(label);
+			
+			label.selectable = false;
+			label.y = stage.stageHeight * 0.8;
+			label.width = stage.stageWidth;
+			
+			var textFormat:TextFormat = new TextFormat();
+			textFormat.align = TextFormatAlign.CENTER;
+			textFormat.color = 0xffffff;
+			textFormat.font = "_typewriter";
+			textFormat.size = 22;
+			
+			label.defaultTextFormat = textFormat;
+			label.htmlText = "Click <a href='event:change'><u>here</u></a> to start the test";
 		}
 		
 		private function resize(event:Event):void
@@ -47,10 +72,32 @@ package br.dcoder
 				center.x = stage.stageWidth / 2;
 				center.y = stage.stageHeight / 2;
 			}
+			
+			if (label)
+			{
+				label.y = stage.stageHeight * 0.8;
+				label.width = stage.stageWidth;
+			}
+		}
+		
+		private function linkClick(event:TextEvent):void
+		{
+			if (started)
+			{
+				label.htmlText = "Click <a href='event:change'><u>here</u></a> to start the test";
+				stop();
+			}
+			else
+			{
+				label.htmlText = "Click <a href='event:change'><u>here</u></a> to stop the test";
+				start();
+			}
 		}
 		
 		private function start():void
 		{
+			started = true;
+			
 			testContainer = new Sprite();
 			addChild(testContainer);
 			
@@ -63,11 +110,16 @@ package br.dcoder
 		
 		private function stop():void
 		{
+			started = false;
+			
 			testContainer.removeEventListener(Event.ENTER_FRAME, enterFrame);
 			removeChild(testContainer);
+			testContainer = null;
 			
 			center = null;
 			particles = null;
+			
+			System.gc();
 		}
 		
 		private function enterFrame(event:Event):void

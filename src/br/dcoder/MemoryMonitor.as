@@ -21,7 +21,7 @@ package br.dcoder
 		
 		private static const WIDTH:uint = 180;
 		private static const HEIGHT:uint = 60;
-		private static const INTERVAL:uint = 2000;
+		private static const INTERVAL:uint = 1000;
 		private static const MAX_DATA:uint = 30;
 		private static const TEXT_HEIGHT:uint = 15;
 		private static const TEXT_SIZE:uint = 10;
@@ -221,7 +221,7 @@ package br.dcoder
 			maxLayer.graphics.lineStyle(1, 0xff0000);
 			
 			curLayer.graphics.clear();
-			curLayer.graphics.lineStyle(1, 0x00ff00);
+			curLayer.graphics.lineStyle(1, 0x00cc00);
 			
 			var diff:uint = maxMemory - minMemory;
 			var first:Boolean = true;
