@@ -101,6 +101,9 @@ package br.dcoder
 			testContainer = new Sprite();
 			addChild(testContainer);
 			
+			if (getChildIndex(label) < getChildIndex(testContainer))
+				swapChildren(label, testContainer);
+			
 			center = new Point(stage.stageWidth / 2, stage.stageHeight / 2);
 			particles = new Array();
 			lastUpdate = getTimer();
