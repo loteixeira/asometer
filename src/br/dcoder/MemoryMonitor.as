@@ -6,6 +6,7 @@ package br.dcoder
 	import flash.events.Event;
 	import flash.system.System;
 	import flash.text.TextField;
+	import flash.text.TextFormat;
 	import flash.utils.getTimer;
 	import flash.utils.setInterval;
 
@@ -22,13 +23,19 @@ package br.dcoder
 		private static const HEIGHT:uint = 60;
 		private static const INTERVAL:uint = 2000;
 		private static const MAX_DATA:uint = 30;
+		private static const TEXT_HEIGHT:uint = 15;
+		private static const TEXT_SIZE:uint = 10;
 		
 		private static var stage:Stage;
 		private static var container:Sprite;
 		private static var minLayer:Shape;
 		private static var maxLayer:Shape;
 		private static var curLayer:Shape;
-		private static var textField:TextField;
+		
+		private static var fpsTextField:TextField;
+		private static var minTextField:TextField;
+		private static var maxTextField:TextField;
+		private static var currentTextField:TextField;
 
 		private static var align:String;
 		private static var offsetX:uint, offsetY:uint;
@@ -52,6 +59,7 @@ package br.dcoder
 			container.alpha = alpha;
 			stage.addChild(container);
 			
+			// chart layers
 			minLayer = new Shape();
 			minLayer.y = offsetY;
 			container.addChild(minLayer);
@@ -65,15 +73,56 @@ package br.dcoder
 			curLayer.y = offsetY;
 			container.addChild(curLayer);
 			
-			textField = new TextField();
-			textField.selectable = false;
-			textField.width = WIDTH - offsetX * 2;
-			container.addChild(textField);
-			updateText(0, 0, 0);
+			// text fields
+			var textFormat:TextFormat;
 			
-			textField.x = offsetX;
-			textField.y = Math.round(HEIGHT - offsetY - textField.textHeight);
+			fpsTextField = new TextField();
+			fpsTextField.selectable = false;
+			fpsTextField.y = Math.round(HEIGHT - offsetY - TEXT_HEIGHT);
+			container.addChild(fpsTextField);
 			
+			textFormat = new TextFormat();
+			textFormat.font = "_typewriter";
+			textFormat.size = TEXT_SIZE;
+			textFormat.color = 0x000000;
+			fpsTextField.defaultTextFormat = textFormat;
+			
+			minTextField = new TextField();
+			minTextField.selectable = false;
+			minTextField.y = Math.round(HEIGHT - offsetY - TEXT_HEIGHT);
+			container.addChild(minTextField);
+			
+			textFormat = new TextFormat();
+			textFormat.font = "_typewriter";
+			textFormat.size = TEXT_SIZE;
+			textFormat.color = 0x0000ff;
+			minTextField.defaultTextFormat = textFormat;
+			
+			maxTextField = new TextField();
+			maxTextField.selectable = false;
+			maxTextField.y = Math.round(HEIGHT - offsetY - TEXT_HEIGHT);
+			container.addChild(maxTextField);
+			
+			textFormat = new TextFormat();
+			textFormat.font = "_typewriter";
+			textFormat.size = TEXT_SIZE;
+			textFormat.color = 0xff0000;
+			maxTextField.defaultTextFormat = textFormat;
+			
+			currentTextField = new TextField();
+			currentTextField.selectable = false;
+			currentTextField.y = Math.round(HEIGHT - offsetY - TEXT_HEIGHT);
+			container.addChild(currentTextField);
+			
+			textFormat = new TextFormat();
+			textFormat.font = "_typewriter";
+			textFormat.size = TEXT_SIZE;
+			textFormat.color = 0x00aa00;
+			currentTextField.defaultTextFormat = textFormat;
+			
+			updateText(0, 0, 0, 0);
+			
+			// memory data
 			data = new Array();
 			
 			for (var i:uint = 0; i < MAX_DATA; i++)
@@ -86,6 +135,7 @@ package br.dcoder
 			frameCount = 0;
 			lastFpsCheck = getTimer();
 			
+			// draw, resize and initialize
 			drawContainer();
 			resize(null);
 			
@@ -136,7 +186,7 @@ package br.dcoder
 			
 			container.graphics.lineStyle(1, 0xcccccc);
 			
-			var h:Number = (HEIGHT - 2 - textField.textHeight - offsetY * 2) / 5;
+			var h:Number = (HEIGHT - 2 - TEXT_HEIGHT - offsetY * 2) / 5;
 			var w:Number = WIDTH - 2;
 			
 			for (var i:uint = 0; i <= 5; i++)
@@ -146,20 +196,23 @@ package br.dcoder
 			}
 		}
 		
-		private static function updateText(minMem:Number, maxMem:Number, curMem:Number):void
+		private static function updateText(fps:uint, minMem:Number, maxMem:Number, curMem:Number):void
 		{
-			var now:uint = getTimer();
-			var fps:uint = Math.round(frameCount / ((now - lastFpsCheck) / 1000));
-			lastFpsCheck = now;
-			frameCount = 0;
+			fpsTextField.text = fps + "fps";
+			minTextField.text = minMem + "mb";
+			maxTextField.text = maxMem + "mb";
+			currentTextField.text = curMem + "mb";
 			
-			textField.htmlText = "<font face='_typewriter' color='#0000ff' size='10'>" + minMem + "mb</font> <font face='_typewriter' color='#ff0000' size='10'>" + maxMem + "mb</font> <font face='_typewriter' color='#00bb00' size='10'>" + curMem + "mb</font> <font face='_typewriter' color='#000000' size='10'>" + fps + "fps</font>";
+			fpsTextField.x = Math.round(offsetX / 2);
+			minTextField.x = Math.round(fpsTextField.x + fpsTextField.textWidth + offsetX / 2);
+			maxTextField.x = Math.round(minTextField.x + minTextField.textWidth + offsetX / 2);
+			currentTextField.x = Math.round(maxTextField.x + maxTextField.textWidth + offsetX / 2);
 		}
 		
 		private static function drawData():void
 		{
 			var w:uint = WIDTH - 2;
-			var h:uint = HEIGHT - 2 - offsetY * 2 - textField.textHeight;
+			var h:uint = HEIGHT - 2 - offsetY * 2 - TEXT_HEIGHT;
 			
 			minLayer.graphics.clear();
 			minLayer.graphics.lineStyle(1, 0x0000ff);
@@ -239,7 +292,13 @@ package br.dcoder
 			var minMem:Number = Math.round((minMemory / 1048576) * 10) / 10;
 			var maxMem:Number = Math.round((maxMemory / 1048576) * 10) / 10;
 			var curMem:Number = Math.round((currentMemory / 1048576) * 10) / 10;
-			updateText(minMem, maxMem, curMem);
+			
+			var now:uint = getTimer();
+			var fps:uint = Math.round(frameCount / ((now - lastFpsCheck) / 1000));
+			lastFpsCheck = now;
+			frameCount = 0;
+
+			updateText(fps, minMem, maxMem, curMem);
 			
 			drawData();
 			toFront();
