@@ -1,3 +1,8 @@
+// AS3MemoryMonitor Copyright 2012 Lucas Teixeira (aka Disturbed Coder)
+// Project page: https://github.com/loteixeira/AS3MemoryMonitor
+//
+// This software is distribuited under the terms of the GNU Lesser Public License.
+// See LICENSE file for more information.
 package br.dcoder
 {
 	import flash.display.BlendMode;
