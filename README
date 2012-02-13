@@ -10,6 +10,8 @@ The memory chart has three different lines:
 * red line: maximum memory.
 * green line: current memory.
 
+Online test application: disturbedcoder.com/files/AS3MemoryMonitor
+
 #########
 # USAGE #
 #########
